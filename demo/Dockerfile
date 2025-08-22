@@ -1,6 +1,5 @@
 # 1. 베이스 이미지 선택 (Java 11 사용)
-FROM openjdk:21-jre-slim
-
+FROM openjdk:21
 
 # 3. JAR 파일이 위치할 컨테이너 내 디렉토리 생성
 WORKDIR /app
