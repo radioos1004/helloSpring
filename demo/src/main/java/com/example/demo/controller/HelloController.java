@@ -11,4 +11,9 @@ public class HelloController {
 
         return "Hello, Spring Boot 성공이야 ㅋㅋㅋㅋ 너무 좋다 ^^^^!";
     }
+
+    @GetMapping("/bye")
+    public String sayBye() {
+        return "Bye, 자동 배포 성공이야;; 너무 좋다 ^^^^!";
+    }
 }
