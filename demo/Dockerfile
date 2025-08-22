@@ -6,7 +6,8 @@ WORKDIR /app
 
 # 4. Gradle 빌드로 생성된 JAR 파일을 컨테이너로 복사
 # build/libs/ 디렉토리 아래에 있는 .jar 파일을 app.jar 라는 이름으로 복사합니다.
-COPY build/libs/*.jar app.jar
+#COPY build/libs/*.jar app.jar
+COPY demo/build/libs/*.jar app.jar
 # 5. 컨테이너가 외부에 노출할 포트 설정 (애플리케이션 포트와 일치)
 EXPOSE 8080
 
