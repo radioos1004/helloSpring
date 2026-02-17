@@ -11,7 +11,7 @@ WORKDIR /app
 COPY build/libs/*.jar app.jar
 
 # 4. 컨테이너가 외부에 노출할 포트 설정
-EXPOSE 8080
+EXPOSE 8081
 
 # 5. 컨테이너가 시작될 때 실행할 명령어
 # WORKDIR가 /app 이므로, JAR 파일의 전체 경로는 /app/app.jar 입니다.
