@@ -26,3 +26,16 @@ podman-compose logs -f app
 
 # 4. 중지 및 삭제
 podman-compose down
+
+
+# vmware podman / 서비스 등록
+```text
+VMware Linux VM
+├── /opt/jenkins/              ← 데이터 저장 (영구)
+│   ├── config.xml
+│   └── jobs/
+│
+└── /home/사용자/               ← systemd 설정
+    └── .config/systemd/user/
+        └── jenkins.service    ← 부팅 시 /opt/jenkins 데이터로 컨테이너 시작
+```
