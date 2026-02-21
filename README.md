@@ -39,3 +39,13 @@ VMware Linux VM
     └── .config/systemd/user/
         └── jenkins.service    ← 부팅 시 /opt/jenkins 데이터로 컨테이너 시작
 ```
+
+
+# 파일구조 
+helloSpring/
+└── demo/
+    ├── src/
+    ├── build.gradle
+    ├── Dockerfile
+    ├── gradlew
+    └── deploy.sh  <-- 이 위치!
