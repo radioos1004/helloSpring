@@ -8,8 +8,8 @@ services:
     ports:
       - "80:80"  # 사용자는 80포트로 접속
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/service-url.inc:/etc/nginx/conf.d/service-url.inc
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/service-url.inc:/etc/nginx/conf.d/service-url.inc:ro
     # depends_on:
     #  - app-blue
     #  - app-green
