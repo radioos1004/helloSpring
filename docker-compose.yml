@@ -2,7 +2,7 @@ version: '3'
 
 services:
   # Nginx: 외부 요청을 받아 Blue 또는 Green으로 전달
-  nginx:
+  nginx-proxy:
     image: nginx:latest
     container_name: nginx-proxy
     ports:
@@ -10,9 +10,9 @@ services:
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/service-url.inc:/etc/nginx/conf.d/service-url.inc
-    depends_on:
-      - app-blue
-      - app-green
+    # depends_on:
+    #  - app-blue
+    #  - app-green
     networks:
       - app-network
 
