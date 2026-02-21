@@ -8,12 +8,6 @@ set -e
 # ==========================================
 usage() {
     echo "사용법: $0 -n [APP_NAME] -t [TYPE] -p [PORT] -d [DIR] -v [VERSION]"
-    echo "옵션:"
-    echo "  -n : 애플리케이션 이름 (예: hellospring, my-dotnet-app)"
-    echo "  -t : 프로젝트 타입 (java-gradle, java-maven, dotnet)"
-    echo "  -p : 호스트 포트 (예: 8080)"
-    echo "  -d : 프로젝트 디렉토리 경로 (기본값: .)"
-    echo "  -v : 버전 (기본값: latest)"
     exit 1
 }
 
@@ -35,7 +29,6 @@ while getopts "n:t:p:d:v:" opt; do
     esac
 done
 
-# 필수 값 체크
 if [ -z "$APP_NAME" ]; then
     echo "❌ 에러: -n (APP_NAME)은 필수 입력 사항입니다."
     usage
@@ -45,10 +38,9 @@ IMAGE_NAME="${APP_NAME}:${VERSION}"
 CONTAINER_NAME="container-${APP_NAME}"
 
 echo "=== [1] 시스템 정보 확인 ==="
-echo "호스트: $(hostname)"
-echo "사용자: $(whoami)"
 echo "대상 디렉토리: $APP_DIR"
 echo "애플리케이션 타입: $APP_TYPE"
+echo "대상 포트: $HOST_PORT"
 
 # 1. 작업 디렉토리 이동
 cd "$APP_DIR"
@@ -75,14 +67,32 @@ echo "🏗️ [Step 2] Docker 이미지 빌드 ($IMAGE_NAME)"
 docker build --no-cache -t "$IMAGE_NAME" .
 docker tag "$IMAGE_NAME" "$APP_NAME:latest"
 
-echo "🚀 [Step 3] 기존 컨테이너 정리"
-docker stop "$CONTAINER_NAME" 2>/dev/null || true
-docker rm "$CONTAINER_NAME" 2>/dev/null || true
+# ============================================================
+# [Step 3] 기존 컨테이너 및 포트 점유 정리 (수정된 부분)
+# ============================================================
+echo "🚀 [Step 3] 기존 컨테이너 및 포트 점유 정리"
+
+# 1. 이름이 동일한 컨테이너가 있다면 제거
+if [ "$(docker ps -aq -f name=^/${CONTAINER_NAME}$)" ]; then
+    echo "  - 기존 컨테이너 이름($CONTAINER_NAME) 발견: 중지 및 제거 중..."
+    docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
+    docker rm "$CONTAINER_NAME" >/dev/null 2>&1 || true
+fi
+
+# 2. 이름은 다르지만 동일한 포트($HOST_PORT)를 사용하는 컨테이너가 있다면 제거
+PORT_CONFLICT_CONTAINER=$(docker ps -q --filter "publish=$HOST_PORT")
+if [ -n "$PORT_CONFLICT_CONTAINER" ]; then
+    echo "  - 포트 $HOST_PORT 를 점유 중인 컨테이너($PORT_CONFLICT_CONTAINER) 발견: 제거 중..."
+    docker stop "$PORT_CONFLICT_CONTAINER" >/dev/null 2>&1 || true
+    docker rm "$PORT_CONFLICT_CONTAINER" >/dev/null 2>&1 || true
+fi
+
+# 3. (선택사항) 호스트 프로세스 자체가 포트를 쓰는 경우 (예: 로컬 실행 중인 Java)
+# 만약 Docker 외부에서 실행 중인 프로세스까지 죽이고 싶다면 아래 주석을 해제하세요.
+# fuser -k ${HOST_PORT}/tcp >/dev/null 2>&1 || true
+# ============================================================
 
 echo "🚀 [Step 4] 새 컨테이너 실행 (Port: $HOST_PORT)"
-# 컨테이너 내부 포트는 일반적으로 Java(8080/8081), .NET(80) 등 다르므로 확인 필요
-# 여기서는 편의상 내부 포트도 변수화하거나 Dockerfile의 EXPOSE를 따름
-# 예시에서는 내부 포트를 8080으로 가정하거나 추가 인자로 받을 수 있음
 INNER_PORT=8080
 if [ "$APP_TYPE" == "dotnet" ]; then INNER_PORT=80; fi
 
